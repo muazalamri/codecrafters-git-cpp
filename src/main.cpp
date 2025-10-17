@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
      {
          //read arg -p <hash>
          if (argc < 4 || std::string(argv[2]) != "-p") {
-             std::cerr << "Usage: " << argv[0] << " cat-file -p <hash>\n";
+             std::cerr << "Usage : " << argv[0] << " cat-file -p <hash>\n";
              return EXIT_FAILURE;
          }
          std::string hash = argv[3];
