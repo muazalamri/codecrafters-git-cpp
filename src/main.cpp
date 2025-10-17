@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include "read.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -41,7 +42,24 @@ int main(int argc, char *argv[])
              std::cerr << e.what() << '\n';
              return EXIT_FAILURE;
          }
-     } else {
+     }
+     else if (command == "cat-file")
+     {
+         //read arg -p <hash>
+         if (argc < 4 || std::string(argv[2]) != "-p") {
+             std::cerr << "Usage: " << argv[0] << " cat-file -p <hash>\n";
+             return EXIT_FAILURE;
+         }
+         std::string hash = argv[3];
+         try {
+             auto [header, content] = readZIP(hash);
+             std::cout <<content;
+         } catch (const std::exception &e) {
+             std::cerr << e.what() << '\n';
+             return EXIT_FAILURE;
+         }
+     }
+     else {
          std::cerr << "Unknown command " << command << '\n';
          return EXIT_FAILURE;
      }

@@ -50,6 +50,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
+.vscode
+app
 build
+tests
 vcpkg_installed
