@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
          std::string hash = argv[3];
          try {
              auto [header, content] = readZIP(hash);
-             std::cout <<content;
+             std::cout <<content;//no newline added
          } catch (const std::exception &e) {
              std::cerr << e.what() << '\n';
              return EXIT_FAILURE;
