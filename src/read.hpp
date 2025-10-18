@@ -45,8 +45,38 @@ std::string decompressZlib(const std::vector<unsigned char> &data)
     inflateEnd(&stream);
     return out;
 }
+struct tree_branch
+{
+    std::string ftype, fname, fhash;
+    tree_branch(std::string file_type, std::string file_name, std::string file_hash) : ftype(file_type), fname(file_name), fhash(fhash) {}
+    tree_branch(std::string line)
+    {
+        ftype = line.substr(0, line.find(' '));
+        line = line.substr(line.find(' ') + 1);
+        fname = line.substr(0, line.find(' '));
+        fhash = line.substr(line.find(' ') + 1);
+    }
+};
 
-std::pair<std::string,std::string> readZIP(std::string hash)
+std::vector<tree_branch> readTree(std::string hash)
+{
+    std::string path = ".git/objects/" + hash.substr(0, 2) + "/" + hash.substr(2);
+    auto compressed = readFile(path);
+    std::string decompressed = decompressZlib(compressed);
+    std::string line;
+    std::vector<tree_branch> files;
+    while (decompressed.size()>0)
+    {
+        line = decompressed.substr(0, decompressed.find('\n'));
+        std::cout << "line : " << line << std::endl;
+        if(line.size()<47){ //5 type +space+name+space+40 hash
+            break;
+        }
+        files.push_back(tree_branch(line));
+    }
+    return files;
+}
+std::pair<std::string, std::string> readZIP(std::string hash)
 {
     try
     {
@@ -57,11 +87,10 @@ std::pair<std::string,std::string> readZIP(std::string hash)
         size_t null_pos = decompressed.find('\0');
         std::string header = decompressed.substr(0, null_pos);
         std::string content = decompressed.substr(null_pos + 1);
-        return {header,content};
+        return {header, content};
     }
     catch (const std::exception &e)
     {
         std::cerr << "error : " << e.what() << std::endl;
     }
-
 }

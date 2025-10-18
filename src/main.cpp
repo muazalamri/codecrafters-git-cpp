@@ -60,31 +60,7 @@ int main(int argc, char *argv[])
             std::cerr << "Usage : " << argv[0] << " ls-tree <obj>\n";
             return EXIT_FAILURE;
         }
-        if (fs::is_directory(argv[argc - 1]))
-        {
-            fs::directory_iterator pathes = listdir(argv[argc - 1]);
-            for (const auto &file_path : pathes)
-            {
-                //check if --name-only is provided
-                if (argc >=4 && std::string(argv[2]) == "--name-only")
-                {
-                    std::cout << file_path.path().filename().string() << std::endl;
-                }
-                else{
-                    std::cout << file_path.path().string() << std::endl;
-                }
-            }
-        }
-        //handle single file
-        else if (fs::exists(argv[argc - 1]))
-        {
-            std::cout << argv[argc - 1] << std::endl;
-        }
-        else
-        {
-            std::cerr << "Path does not exist: " << argv[1] << std::endl;
-            return EXIT_FAILURE;
-        }
+        //read tree from file of hasded
     }
 
     else if (command == "cat-file")
