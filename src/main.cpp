@@ -3,7 +3,8 @@
 #include <fstream>
 #include <string>
 #include "read.hpp"
-
+#include "write.hpp"
+#include "sha.hpp"
 int main(int argc, char *argv[])
 {
     // Flush after every std::cout / std::cerr
@@ -54,6 +55,41 @@ int main(int argc, char *argv[])
          try {
              auto [header, content] = readZIP(hash);
              std::cout <<content;//no newline added
+         } catch (const std::exception &e) {
+             std::cerr << e.what() << '\n';
+             return EXIT_FAILURE;
+         }
+     }
+     else if (command == "hash-object")
+     {
+         //read arg -w <file>
+         if (argc < 4 || std::string(argv[2]) != "-w") {
+             std::cerr << "Usage : " << argv[0] << " hash-object -w <file>\n";
+             return EXIT_FAILURE;
+         }
+         std::string filePath = argv[3];
+         try {
+             // Read file content
+             std::ifstream file(filePath, std::ios::binary);
+             if (!file) {
+                 std::cerr << "Cannot open file: " << filePath << '\n';
+                 return EXIT_FAILURE;
+             }
+             std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+             file.close();
+    
+             // Prepare data with header
+             std::string header = "blob " + std::to_string(content.size()) + '\0';
+             std::string data = header + content;
+    
+             // Compute SHA-1 hash
+             std::string hash = sha1(data);
+    
+             // Write compressed object to .git/objects
+             writeZIP(hash, data);
+    
+             // Output the hash
+             std::cout << hash << '\n';
          } catch (const std::exception &e) {
              std::cerr << e.what() << '\n';
              return EXIT_FAILURE;
