@@ -60,7 +60,10 @@ int main(int argc, char *argv[])
             std::cerr << "Usage : " << argv[0] << " ls-tree <obj>\n";
             return EXIT_FAILURE;
         }
+        bool name_only=false;//defualt
         //read tree from file of hasded
+        if (argv[2] == "--name-only"){name_only=true;}
+        readTree(argv[argc - 1],false,true);
     }
 
     else if (command == "cat-file")

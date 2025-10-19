@@ -2,6 +2,8 @@
 #include <fstream>
 #include <vector>
 #include <zlib.h>
+#include <sstream>
+#include <iomanip>
 
 std::vector<unsigned char> readFile(const std::string &path)
 {
@@ -23,13 +25,12 @@ std::string decompressZlib(const std::vector<unsigned char> &data)
 
     std::string out;
     std::vector<unsigned char> buffer(4096);
-
     int ret;
+
     do
     {
         stream.next_out = buffer.data();
         stream.avail_out = buffer.size();
-
         ret = inflate(&stream, Z_NO_FLUSH);
 
         if (ret != Z_OK && ret != Z_STREAM_END)
@@ -45,37 +46,62 @@ std::string decompressZlib(const std::vector<unsigned char> &data)
     inflateEnd(&stream);
     return out;
 }
+
 struct tree_branch
 {
-    std::string ftype, fname, fhash;
-    tree_branch(std::string file_type, std::string file_name, std::string file_hash) : ftype(file_type), fname(file_name), fhash(fhash) {}
-    tree_branch(std::string line)
-    {
-        ftype = line.substr(0, line.find(' '));
-        line = line.substr(line.find(' ') + 1);
-        fname = line.substr(0, line.find(' '));
-        fhash = line.substr(line.find(' ') + 1);
-    }
+    std::string mode;
+    std::string name;
+    std::string sha1;
 };
 
-std::vector<tree_branch> readTree(std::string hash)
+std::string toHex(const unsigned char *data, size_t len)
+{
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+    for (size_t i = 0; i < len; ++i)
+        oss << std::setw(2) << static_cast<unsigned int>(data[i]);
+    return oss.str();
+}
+
+std::vector<tree_branch> readTree(const std::string &hash,bool print_data=false,bool print_names=false)
 {
     std::string path = ".git/objects/" + hash.substr(0, 2) + "/" + hash.substr(2);
     auto compressed = readFile(path);
     std::string decompressed = decompressZlib(compressed);
-    std::string line;
-    std::vector<tree_branch> files;
-    while (decompressed.size()>0)
+
+    // تخطي ترويسة "tree <size>\0"
+    size_t header_end = decompressed.find('\0') + 1;
+    size_t pos = header_end;
+
+    std::vector<tree_branch> entries;
+
+    while (pos < decompressed.size())
     {
-        line = decompressed.substr(0, decompressed.find('\n'));
-        std::cout << "line : " << line << std::endl;
-        if(line.size()<47){ //5 type +space+name+space+40 hash
-            break;
-        }
-        files.push_back(tree_branch(line));
+        // 1️⃣ اقرأ الـ mode حتى أول space
+        size_t space_pos = decompressed.find(' ', pos);
+        std::string mode = decompressed.substr(pos, space_pos - pos);
+        pos = space_pos + 1;
+
+        // 2️⃣ اقرأ الاسم حتى أول '\0'
+        size_t null_pos = decompressed.find('\0', pos);
+        std::string name = decompressed.substr(pos, null_pos - pos);
+        pos = null_pos + 1;
+
+        // 3️⃣ اقرأ 20 بايت التالية كـ hash ثنائي
+        std::string sha1_bin = decompressed.substr(pos, 20);
+        pos += 20;
+
+        std::string sha1_hex = toHex(reinterpret_cast<const unsigned char *>(sha1_bin.data()), 20);
+
+        if(print_names){std::cout << name<<std::endl;}
+        if(print_data){std::cout << mode << " " << name << " " << sha1_hex << std::endl;}
+        entries.push_back({mode, name, sha1_hex});
     }
-    return files;
+
+    return entries;
 }
+
+
 std::pair<std::string, std::string> readZIP(std::string hash)
 {
     try
