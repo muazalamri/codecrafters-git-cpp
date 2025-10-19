@@ -1,3 +1,5 @@
+#ifndef LISTDIR_HPP
+#define LISTDIR_HPP
 #include <filesystem>
 #include <string>
 namespace fs=std::filesystem;
@@ -15,3 +17,4 @@ fs::directory_iterator listdir(std::string path)
     return fs::directory_iterator(path);
 
 }
+#endif // LISTDIR_HPP

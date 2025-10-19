@@ -1,3 +1,5 @@
+#ifndef SHA_HPP
+#define SHA_HPP
 #include <string>
 #include <iomanip>
 #include <iostream>
@@ -14,3 +16,4 @@ std::string sha1(const std::string &text)
 
     return oss.str();
 }
+#endif // SHA_HPP

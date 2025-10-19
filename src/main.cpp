@@ -65,7 +65,10 @@ int main(int argc, char *argv[])
         if (argv[2] == "--name-only"){name_only=true;}
         readTree(argv[argc - 1],false,true);
     }
-
+    else if(command == "write-tree")
+    {
+        
+    }
     else if (command == "cat-file")
     {
         // read arg -p <hash>
