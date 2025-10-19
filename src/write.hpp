@@ -51,7 +51,7 @@ void writeZIP(const std::string &hash, const std::string &data)
     deflateEnd(&stream);
     file.close();
 }
-void writeTree()
+std::string writeTree(bool print_hash = false)
 {
     try
     {
@@ -63,22 +63,29 @@ void writeTree()
             if (name == ".git")
                 continue; // Skip .git directory
             std::string mode = entry.is_directory() ? "40000" : "100644";
-            // Read file content
-            std::ifstream file(entry.path().string(), std::ios::binary);
-            if (!file)
-            {
-                std::cerr << "Cannot open file: " << entry.path().string() << '\n';
+            if (mode == "40000")
+            { // Read file content
+                std::ifstream file(entry.path().string(), std::ios::binary);
+                if (!file)
+                {
+                    std::cerr << "Cannot open file: " << entry.path().string() << '\n';
+                }
+                std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+                file.close();
+
+                // Prepare data with header
+                std::string header = mode + " " + std::to_string(content.size()) + '\0';
+                std::string data = header + content;
+
+                // Compute SHA-1 hash
+                std::string hash = sha1(data);
+                entries.push_back({mode, name, hash});
             }
-            std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-            file.close();
-
-            // Prepare data with header
-            std::string header = mode+" " + std::to_string(content.size()) + '\0';
-            std::string data = header + content;
-
-            // Compute SHA-1 hash
-            std::string hash = sha1(data);
-            entries.push_back({mode, name, hash});
+            else
+            {
+                std::string hash = writeTree();
+                entries.push_back({mode, name, hash});
+            }
         }
         // Build tree object content
         std::string tree_content;
@@ -94,15 +101,20 @@ void writeTree()
 
         // Compute SHA-1 hash
         std::string hash = sha1(data);
-        std::cout << hash << std::endl;
+        if (print_hash)
+        {
+            std::cout << hash << std::endl;
+        }
         // Write compressed object to .git/objects
         writeZIP(hash, data);
 
         // Output the hash
-        //std::cout << hash << '\n';
+        // std::cout << hash << '\n';
+        return hash;
     }
     catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
     }
+    return "";
 }
