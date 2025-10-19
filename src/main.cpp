@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     }
     else if(command == "write-tree")
     {
-        writeTree();
+        writeTree(true);
     }
     else if (command == "cat-file")
     {
