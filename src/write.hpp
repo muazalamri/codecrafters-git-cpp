@@ -79,7 +79,7 @@ void writeTree()
 
         // Compute SHA-1 hash
         std::string hash = sha1(data);
-
+        std::cout << hash << std::endl;
         // Write compressed object to .git/objects
         writeZIP(hash, data);
 
