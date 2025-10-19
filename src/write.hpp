@@ -63,7 +63,22 @@ void writeTree()
             if (name == ".git")
                 continue; // Skip .git directory
             std::string mode = entry.is_directory() ? "40000" : "100644";
-            entries.push_back({mode, name, sha1(entry.path().string())});
+            // Read file content
+            std::ifstream file(entry.path().string(), std::ios::binary);
+            if (!file)
+            {
+                std::cerr << "Cannot open file: " << entry.path().string() << '\n';
+            }
+            std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+            file.close();
+
+            // Prepare data with header
+            std::string header = mode+" " + std::to_string(content.size()) + '\0';
+            std::string data = header + content;
+
+            // Compute SHA-1 hash
+            std::string hash = sha1(data);
+            entries.push_back({mode, name, hash});
         }
         // Build tree object content
         std::string tree_content;
@@ -84,7 +99,7 @@ void writeTree()
         writeZIP(hash, data);
 
         // Output the hash
-        std::cout << hash << '\n';
+        //std::cout << hash << '\n';
     }
     catch (const std::exception &e)
     {
