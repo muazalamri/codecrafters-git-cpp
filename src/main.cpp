@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     else if (command == "commit-tree")
     {
         //args : tree_sha -p prvios_commit_sha -m massage
-        if (argc < 8)
+        if (argc < 6)
         {
             std::cerr << "Usage : " << argv[0] << " commit-tree <tree_sha> -p <prvios_commit_sha> -m <massage>\n";
             return EXIT_FAILURE;
