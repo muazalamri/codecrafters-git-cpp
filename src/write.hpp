@@ -6,6 +6,7 @@
 #include <zlib.h>
 #include "sha.hpp"
 #include "listdir.hpp"
+#include "time_stamp.hpp"
 std::string hexToBinary(const std::string &hex)
 {
     std::string binary;
@@ -122,4 +123,8 @@ std::string writeTree(const std::string &dir = ".", bool print_hash = false)
         std::cerr << e.what() << '\n';
         return "";
     }
+}
+void commitTree(std::string tree_sha,std::string prev_sha,std::string massage,bool print_sha=true){
+    commit prev=read_commit(prev_sha);
+    std::string data = "tree " + tree_sha + "\n" + "author" +prev.author+ " <" + prev.author_email+"> "+ prev.author_date + "\n" + "comitter " + prev.committer + " <" + prev.committer_email + "> " + git_timestamp() + "\n\n" + massage;
 }

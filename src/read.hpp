@@ -54,6 +54,40 @@ struct tree_branch
     std::string sha1;
 };
 
+struct commit
+{
+    std::string tree;
+    std::string author;
+    std::string author_email;
+    std::string author_date;
+    std::string committer;
+    std::string committer_email;
+    std::string committer_date;
+    std::string message;
+};
+commit read_commit(const std::string &hash)
+{
+    auto compressed = readFile(".git/objects/" + hash.substr(0, 2) + "/" + hash.substr(2));
+    auto decompressed = decompressZlib(compressed);
+    int pos;
+    pos=decompressed.find("tree")+1;
+    std::string tree=decompressed.substr(pos,decompressed.find("\n",pos)-pos);
+    pos=decompressed.find("author")+1;
+    std::string author=decompressed.substr(pos,decompressed.find(" ",pos)-pos);
+    pos=decompressed.find("<",pos)+1;
+    std::string author_Email= decompressed.substr(pos,decompressed.find(">",pos)-pos);
+    pos=decompressed.find("> ",pos);
+    std::string author_date= decompressed.substr(pos,decompressed.find("\n",pos)-pos);
+    pos=decompressed.find("committer")+1;
+    std::string committer=decompressed.substr(pos,decompressed.find(" ",pos)-pos);
+    pos=decompressed.find("<",pos)+1;
+    std::string committer_Email= decompressed.substr(pos,decompressed.find(">",pos)-pos);
+    pos=decompressed.find("> ",pos);
+    std::string committer_date= decompressed.substr(pos,decompressed.find("\n",pos)-pos);
+    pos=decompressed.find("\n\n")+2;
+    std::string message= decompressed.substr(pos);
+    return {tree,author,author_Email,author_date,committer,committer_Email,committer_date,message};
+}
 std::string toHex(const unsigned char *data, size_t len)
 {
     std::ostringstream oss;

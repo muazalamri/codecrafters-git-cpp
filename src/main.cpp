@@ -69,6 +69,19 @@ int main(int argc, char *argv[])
     {
         writeTree(".",true);
     }
+    else if (command == "commit-tree")
+    {
+        //args : tree_sha -p prvios_commit_sha -m massage
+        if (argc < 8)
+        {
+            std::cerr << "Usage : " << argv[0] << " commit-tree <tree_sha> -p <prvios_commit_sha> -m <massage>\n";
+            return EXIT_FAILURE;
+        }
+        std::string tree_sha = argv[2];
+        std::string prev_commit_sha = argv[4];
+        std::string massage = argv[6];
+        commitTree(tree_sha, prev_commit_sha, massage);
+    }
     else if (command == "cat-file")
     {
         // read arg -p <hash>
