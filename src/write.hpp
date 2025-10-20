@@ -126,10 +126,10 @@ std::string writeTree(const std::string &dir = ".", bool print_hash = false)
 }
 void commitTree(std::string tree_sha,std::string prev_sha,std::string massage,bool print_sha=true){
     commit prev=read_commit(prev_sha);
-    std::string data = "tree " + tree_sha + "\nparent " +prev_sha + "\n" + "author" +prev.author+ " <" + prev.author_email+"> "+ prev.author_date + "\n" + "comitter " + prev.committer + " <" + prev.committer_email + "> " + git_timestamp() + "\n\n" + massage;
+    std::string data = "tree " + tree_sha + "\nparent " +prev_sha + "\n" + "author" +prev.author+ " <" + prev.author_email+"> "+ prev.author_date + "\n" + "committer " + prev.committer + " <" + prev.committer_email + "> " + git_timestamp() + "\n\n" + massage;
     std::string header = "commit "+std::to_string(data.size())+'\0';
-    auto commit_sha = sha1(header+"\n"+data);
-    writeZIP(commit_sha,header+"\n"+data);
+    auto commit_sha = sha1(header+data);
+    writeZIP(commit_sha,header+data);
     if(print_sha){
         std::cout << commit_sha << std::endl;
     }
