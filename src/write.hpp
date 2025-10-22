@@ -7,6 +7,7 @@
 #include "sha.hpp"
 #include "listdir.hpp"
 #include "time_stamp.hpp"
+#include <algorithm>
 std::string hexToBinary(const std::string &hex)
 {
     std::string binary;
