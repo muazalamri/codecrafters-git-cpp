@@ -43,6 +43,7 @@ string parse_head_hash(const string& data) {
     throw runtime_error("No head found");
 }
 
+
 // make pkt-line body for POST
 string make_pkt(const string& commit_hash) {
     string want = "want " + commit_hash + " side-band-64k\n";
