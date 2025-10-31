@@ -6,6 +6,8 @@
 #include "write.hpp"
 #include "sha.hpp"
 #include "listdir.hpp"
+#include "clone.hpp"
+
 int main(int argc, char *argv[])
 {
     // Flush after every std::cout / std::cerr
