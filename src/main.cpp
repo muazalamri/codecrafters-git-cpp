@@ -142,6 +142,17 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
     }
+    else if (command == "clone")
+    {
+        if (argc < 4)
+        {
+            std::cerr << "Usage : " << argv[0] << " clone <url> <directory>\n";
+            return EXIT_FAILURE;
+        }
+        std::string url = argv[2];
+        std::string directory = argv[3];
+        git_clone(url, directory);
+    }
     else
     {
         std::cerr << "Unknown command " << command << '\n';
